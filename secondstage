@@ -12,9 +12,8 @@ START
 	MOV r3,#3
 	MOV r4,#" "
 	ADR r1,SCR4
-	ADR r0,SCRBG
+LOOP	ADR r0,SCRBG
 	SWI SWI_Write0
-LOOP
 	SWI SWI_ReadC		; 讀取鍵盤輸入
 	CMP r0, #'a'		; 如果輸入的是 'a'
 	BEQ MOVE_LEFT
