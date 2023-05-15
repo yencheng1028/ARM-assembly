@@ -12,7 +12,7 @@ START
 	MOV r3,#3
 	MOV r4,#" "
 	ADR r1,SCR4
-ADR r0,SCRBG
+	ADR r0,SCRBG
 	SWI SWI_Write0
 LOOP
 	SWI SWI_ReadC		; 讀取鍵盤輸入
