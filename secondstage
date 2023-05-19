@@ -1,4 +1,5 @@
-		AREA	Goalkeeper,CODE,READONLY
+
+	AREA	Goalkeeper,CODE,READONLY
 SWI_WriteC	EQU	&0
 SWI_Exit	EQU	&11
 SWI_ReadC	EQU	&4
