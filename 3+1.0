@@ -1,0 +1,137 @@
+	AREA	Goalkeeper,CODE,READONLY
+SWI_WriteC	EQU	&0
+SWI_Exit	EQU	&11
+SWI_ReadC	EQU	&4
+SWI_Write0	EQU	&2
+SWI_Clock	EQU	&61
+FLASH		EQU	70
+SWI_Time	EQU	&63
+		ENTRY
+
+START	
+	MOV r3,#3
+	MOV r4,#" "
+	MOV r9,#"M"
+	ADR r1,SCR4
+	
+LOOP	ADR r0,SCRBG
+	SWI SWI_Write0
+	SWI SWI_ReadC		; Read keyboard input
+	CMP r0, #'a'		; If input is 'a'
+	BEQ MOVE_LEFT
+	CMP r0, #'d'		; If input is 'd'
+	BEQ MOVE_RIGHT
+	CMP r0, #'w'		; If input is 'w'
+	BEQ MOVE_UP
+	CMP r0, #'s'		; If input is 's'
+	BEQ MOVE_DOWN
+	BL OBSTACLE_LOOP		; Execute obstacle program
+	ADR r0,SCRBG
+	SWI SWI_Write0
+	B LOOP				; Otherwise, read keyboard input again
+
+MOVE_LEFT
+	CMP r3, #3				; If already at the left boundary, do not move
+	BLE LOOP
+	ADD r2,r1,r3			; Position of "@"
+	LDRB r0,[r2]			; Store "@" in r0
+	STRB r4,[r2]			; Write " " to r2
+	SUB r3,r3,#3			; Move "@" 3 positions to the left
+	ADD r2,r1,r3
+	STRB r0,[r2]		
+	B LOOP
+
+MOVE_RIGHT
+	CMP r3, #32				; If already at the right boundary, do not move
+	BGE LOOP
+	ADD r2,r1,r3			; Position of "@"
+	LDRB r0,[r2]			; Store "@" in r0
+	STRB r4,[r2]			; Write " " to r2
+	ADD r3,r3,#3			; Move "@" 3 positions to the right
+	ADD r2,r1,r3
+	STRB r0,[r2]		
+	B LOOP
+
+MOVE_UP
+	LDR r5, =SCR1		; Load the address of SCR1 into r5
+	CMP r1, r5			; If already at the top boundary, do not move
+	BLE LOOP
+	ADD r2,r1,r3			; Position of "@"
+	LDRB r0,[r2]			; Store "@" in r0
+	STRB r4,[r2]			; Write " " to r2
+	SUB r1,r1,#52			; Move "@" one line up
+	ADD r2,r1,r3
+	STRB r0,[r2]	
+	B LOOP
+
+MOVE_DOWN
+	LDR r5, =SCR8		; Load the address of SCR8 into r5
+	CMP r1, r5			; If already at the bottom boundary, do not move
+	BGE LOOP
+	ADD r2,r1,r3			; Position of "@"
+	LDRB r0,[r2]			; Store "@" in r0
+	STRB r4,[r2]			; Write " " to r2
+	ADD r1,r1,#52			; Move "@" one line down
+	ADD r2,r1,r3
+	STRB r0,[r2]		
+	B LOOP
+
+; Obstacle creation and movement
+
+OBSTACLE_LOOP
+	MOV r6, #0			; Counter for obstacles
+	MOV r7, #0			; Counter for obstacle creation delay
+	ADR r0, OBSTACLE
+	SWI SWI_Write0
+	SWI SWI_Clock		; Delay for obstacle creation
+	ADD r7, r7, #1
+	CMP r7, #200		; Adjust the delay value to control obstacle creation frequency
+	BNE OBSTACLE_LOOP
+
+	MOV r7, #0			; Reset obstacle creation delay counter
+	ADD r6, r6, #1		; Increment obstacle counter
+	CMP r6, #20			; Adjust the value to control the number of obstacles
+	BEQ END_LOOP
+
+	; Create a new obstacle at the rightmost position
+	ADR r8, SCRBG
+	ADD r8, r8, #69		; Start at the rightmost position of the screen
+	ADD r8, r8, r6		; Adjust position based on the obstacle counter
+	LDRB r0, [r8]
+	CMP r0, #" "
+	BEQ SKIP_OBSTACLE	; Skip if there is already an obstacle at the current position
+	STRB r9, [r8]
+
+SKIP_OBSTACLE
+	; Move the existing obstacles to the left
+	ADR r8, SCRBG
+	ADD r8, r8, #69
+	ADD r8, r8, r6
+	LDRB r0, [r8]
+	STRB r4, [r8]
+	SUB r8, r8, #3
+	STRB r0, [r8]
+
+	MOV pc,r14	;return to main program
+
+END_LOOP
+	SWI SWI_Exit
+
+	SWI SWI_Exit	
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;OUTPUT;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+OBSTACLE = "M",&0a,&0d,0
+SCRBG = "**************************************************",&0a,&0d
+SCR1  = "                                           *      ",&0a,&0d
+SCR2  = "                                          ***     ",&0a,&0d
+SCR3  = "                                         *****    ",&0a,&0d
+SCR4  = "   @                                       *      ",&0a,&0d
+SCR5  = "                                           *      ",&0a,&0d
+SCR6  = "                                           *      ",&0a,&0d
+SCR7  = "                                           *      ",&0a,&0d
+SCR8  = "                                           *      ",&0a,&0d
+SCRED = "**************************************************",&0a,&0d,0
+
+	ALIGN
+		
+	END
