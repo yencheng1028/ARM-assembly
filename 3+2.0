@@ -11,7 +11,6 @@ SWI_Time	EQU	&63
 START	
 	MOV r3,#3
 	MOV r4,#" "
-	MOV r9,#"M"
 	ADR r1,SCR4
 	
 LOOP	ADR r0,SCRBG
@@ -81,6 +80,7 @@ MOVE_DOWN
 ; Obstacle creation and movement
 
 OBSTACLE_LOOP
+	MOV r9,#"M"
 	MOV r6, #0				; Initialize obstacle counter
 	MOV r7, #50				; Position of the rightmost obstacle
 OBSTACLE_CREATE
