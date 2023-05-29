@@ -9,6 +9,9 @@ SWI_Time	EQU	&63
 		ENTRY
 
 START	
+	MOV r9,#"M"
+	MOV r6, #0				; Initialize obstacle counter
+	MOV r7, #33				; Position of the rightmost obstacle
 	MOV r3,#3
 	MOV r4,#" "
 	ADR r1,SCR4
@@ -80,9 +83,7 @@ MOVE_DOWN
 ; Obstacle creation and movement
 
 OBSTACLE_LOOP
-	MOV r9,#"M"
-	MOV r6, #0				; Initialize obstacle counter
-	MOV r7, #50				; Position of the rightmost obstacle
+
 OBSTACLE_CREATE
 	ADD r8, r1, r7			; Position of the current obstacle
 	LDRB r0, [r8]			; Load the content at the current obstacle position
